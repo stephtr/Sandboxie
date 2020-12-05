@@ -2,7 +2,8 @@ name: "Code Scanning - Action"
 
 on:
   push: [codeql]
-  pull_request: [codeql]
+  pull_request:
+    branches: [codeql]
   schedule:
     #        ┌───────────── minute (0 - 59)
     #        │  ┌───────────── hour (0 - 23)

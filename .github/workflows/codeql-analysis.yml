@@ -53,7 +53,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1
 
       - name: Build Sandboxie
-        run: msbuild /t:build Sandboxie\Sandbox.sln /p:Configuration="SbieRelease" /p:Platform=${{ matrix.platform }}
+        run: msbuild /t:build Sandboxie\Sandbox.sln /p:Configuration="SbieRelease" /p:Platform="x64"
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1

@@ -1,7 +1,8 @@
-name: "Code Scanning - Action"
+name: "Code Scanning"
 
 on:
-  push: [codeql]
+  push:
+    branches: [codeql]
   pull_request:
     branches: [codeql]
   schedule:

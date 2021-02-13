@@ -4,7 +4,7 @@
 #include "ui_OptionsWindow.h"
 #include "SbiePlusAPI.h"
 
-class COptionsWindow : public QMainWindow
+class COptionsWindow : public QDialog
 {
 	Q_OBJECT
 
@@ -12,13 +12,16 @@ public:
 	COptionsWindow(const QSharedPointer<CSbieIni>& pBox, const QString& Name, QWidget *parent = Q_NULLPTR);
 	~COptionsWindow();
 
+	virtual void accept() {}
+	virtual void reject();
+
 signals:
 	void OptionsChanged();
+	void Closed();
 
 public slots:
+	void ok();
 	void apply();
-	void accept();
-	void reject();
 
 private slots:
 
@@ -29,6 +32,11 @@ private slots:
 	void OnBrowsePath();
 	void OnAddCommand();
 	void OnDelCommand();
+
+	void OnAddAutoCmd();
+	void OnAddAutoExe();
+	void OnDelAutoSvc();
+	void OnDelAuto();
 
 	void OnAddGroup();
 	void OnAddProg();
@@ -54,13 +62,15 @@ private slots:
 
 	void OnAccessItemClicked(QTreeWidgetItem* pItem, int Column);
 	void OnAccessItemDoubleClicked(QTreeWidgetItem* pItem, int Column);
-	void OnAccessSelectionChanged();
+	void OnAccessSelectionChanged() { CloseAccessEdit(); }
 
 	void OnAddFile()				{ AddAccessEntry(eFile, eDirect, "", ""); }
+	void OnBrowseFile();
+	void OnBrowseFolder();
 	void OnAddKey()					{ AddAccessEntry(eKey, eDirect, "", ""); }
 	void OnAddIPC()					{ AddAccessEntry(eIPC, eDirect, "", ""); }
-	void OnAddClsId()				{ AddAccessEntry(eWndCls, eDirect, "", ""); }
-	void OnAddCOM()					{ AddAccessEntry(eClsId, eDirect, "", ""); }
+	void OnAddWnd()					{ AddAccessEntry(eWnd, eDirect, "", ""); }
+	void OnAddCOM()					{ AddAccessEntry(eCOM, eDirect, "", ""); }
 	void OnDelAccess();
 	void OnShowAccessTmpl()			{ LoadAccessList(); }
 
@@ -69,6 +79,9 @@ private slots:
 	void OnAddRecIgnoreExt();
 	void OnDelRecEntry();
 	void OnShowRecoveryTmpl()		{ LoadRecoveryList(); }
+
+	void OnAddAutoExec();
+	void OnDelAutoExec();
 
 	void OnAddProcess();
 	void OnDelProcess();
@@ -87,7 +100,7 @@ private slots:
 	void OnGeneralChanged();
 	void OnStartChanged()			{ m_StartChanged = true; }
 	//void OnRestrictionChanged()		{ m_RestrictionChanged = true; }
-	void OnINetBlockChanged();
+	void OnINetBlockChanged()		{ m_INetBlockChanged = true; }
 	void OnRecoveryChanged()		{ m_RecoveryChanged = true; }
 	void OnAdvancedChanged();
 	void OnDebugChanged();
@@ -120,7 +133,9 @@ protected:
 
 		eOpenWinClass,
 
-		eOpenClsid,
+		eOpenCOM,
+		eClosedCOM,
+		eClosedCOM_RT,
 
 		eMaxAccessType
 	};
@@ -130,8 +145,8 @@ protected:
 		eFile,
 		eKey,
 		eIPC,
-		eWndCls,
-		eClsId
+		eWnd,
+		eCOM
 	};
 
 	enum EAccessMode
@@ -139,6 +154,7 @@ protected:
 		eDirect,
 		eDirectAll,
 		eClosed,
+		eClosedRT,
 		eReadOnly,
 		eWriteOnly
 	};
@@ -157,6 +173,8 @@ protected:
 
 	void LoadConfig();
 	void SaveConfig();
+
+	void AddAutoRunItem(const QString& Value, int Type);
 
 	void AddRunItem(const QString& Name, const QString& Command);
 
@@ -181,6 +199,9 @@ protected:
 	void SaveAccessList();
 	QList<EAccessMode> GetAccessModes(EAccessType Type);
 	void DeleteAccessEntry(QTreeWidgetItem* pItem);
+
+	void CloseAccessEdit(bool bSave = true);
+	void CloseAccessEdit(QTreeWidgetItem* pItem, bool bSave = true);
 
 	void LoadRecoveryList();
 	void AddRecoveryEntry(const QString& Name, int type, const QString& Template = QString());
@@ -220,9 +241,12 @@ protected:
 
 	QSharedPointer<CSbieIni> m_pBox;
 
+	QSet<QString> m_Programs;
+
 private:
 	void ReadAdvancedCheck(const QString& Name, QCheckBox* pCheck, const QString& Value = "y");
 	void WriteAdvancedCheck(QCheckBox* pCheck, const QString& Name, const QString& Value = "y");
+	void WriteAdvancedCheck(QCheckBox* pCheck, const QString& Name, const QString& OnValue, const QString& OffValue);
 
 	Ui::OptionsWindow ui;
 

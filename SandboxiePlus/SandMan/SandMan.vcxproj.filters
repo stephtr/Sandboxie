@@ -41,6 +41,11 @@
     <Filter Include="Windows">
       <UniqueIdentifier>{d0068730-c9fb-49ef-90ec-8ecd2131ae47}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Translation Files">
+      <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
+      <Extensions>ts</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -91,16 +96,28 @@
     <ClCompile Include="Windows\RecoveryWindow.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
+    <ClCompile Include="Windows\NewBoxWindow.cpp">
+      <Filter>Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers\FindTool.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers\WindowFromPointEx.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Resources\resource.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="Helpers\WinAdmin.h">
       <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers\FindTool.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -143,6 +160,9 @@
     <QtMoc Include="Windows\RecoveryWindow.h">
       <Filter>Windows</Filter>
     </QtMoc>
+    <QtMoc Include="Windows\NewBoxWindow.h">
+      <Filter>Windows</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Resources\SandMan.qrc">
@@ -150,12 +170,13 @@
     </QtRcc>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resources\SandMan.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="Resources\SandMan.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\finder-empty.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\finder-full.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
@@ -175,5 +196,39 @@
     <QtUic Include="Forms\RecoveryWindow.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="Forms\NewBoxWindow.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sandman_de.ts">
+      <Filter>Translation Files</Filter>
+    </None>
+    <None Include="sandman_pt.ts">
+      <Filter>Translation Files</Filter>
+    </None>
+    <None Include="sandman_ru.ts">
+      <Filter>Translation Files</Filter>
+    </None>
+    <None Include="Resources\finder.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="sandman_tr.ts">
+      <Filter>Translation Files</Filter>
+    </None>
+    <None Include="sandman_zh-TW.ts">
+      <Filter>Translation Files</Filter>
+    </None>
+    <None Include="sandman_pl.ts">
+      <Filter>Translation Files</Filter>
+    </None>
+    <None Include="sandman_zh-CN.ts">
+      <Filter>Translation Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SandMan.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

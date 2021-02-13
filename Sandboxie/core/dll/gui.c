@@ -392,6 +392,9 @@ _FX BOOLEAN Gui_Init(HMODULE module)
     GUI_IMPORT_AW(RegisterClipboardFormat);
     GUI_IMPORT___(GetClipboardData);
 
+    GUI_IMPORT___(GetRawInputDeviceInfoA);
+    GUI_IMPORT___(GetRawInputDeviceInfoW);
+    
     GUI_IMPORT___(ExitWindowsEx);
     GUI_IMPORT___(EndTask);
     if (Dll_OsBuild >= 8400) {
@@ -2589,7 +2592,7 @@ _FX void *Gui_CallProxyEx(
         }
     }
 
-    SbieApi_Log(2203, L"%S - %S [%08X]", _QueueName, Dll_ImageName, status);
+    SbieApi_Log(2203, L"%S; MsgId: %d - %S [%08X]", _QueueName, *(ULONG*)req, Dll_ImageName, status);
     SetLastError(ERROR_SERVER_DISABLED);
     return NULL;
 }

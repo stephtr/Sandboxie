@@ -7,8 +7,19 @@
 #include "../MiscHelpers/Common/Settings.h"
 #include "../SbiePlusAPI.h"
 
+bool CPopUpWindow__DarkMode = false;
+
 CPopUpWindow::CPopUpWindow(QWidget* parent) : QMainWindow(parent)
 {
+	Qt::WindowFlags flags = windowFlags();
+	flags |= Qt::CustomizeWindowHint;
+	//flags &= ~Qt::WindowContextHelpButtonHint;
+	//flags &= ~Qt::WindowSystemMenuHint;
+	flags &= ~Qt::WindowMinMaxButtonsHint;
+	//flags &= ~Qt::WindowMinimizeButtonHint;
+	//flags &= ~Qt::WindowCloseButtonHint;
+	setWindowFlags(flags);
+
 	this->setWindowTitle(tr("Sandboxie-Plus Notifications"));
 
 	QWidget* centralWidget = new QWidget();
@@ -133,11 +144,11 @@ void CPopUpWindow::AddLogMessage(const QString& Message, quint32 MsgCode, const 
 		AddEntry(pEntry);
 	}
 
-	// 2219 // elvation is disabled
+	// 2219 // elevation is disabled
 
-	// 1307 // internet denided
+	// 1307 // internet denied
 
-	// 1308 // start/run denided
+	// 1308 // start/run denied
 }
 
 void CPopUpWindow::ReloadHiddenMessages()
@@ -166,7 +177,7 @@ void CPopUpWindow::OnHideMessage()
 	CPopUpMessage* pEntry = qobject_cast<CPopUpMessage*>(sender());
 	
 	if (QMessageBox("Sandboxie-Plus", theAPI->GetSbieMsgStr(3647, theGUI->m_LanguageId).arg(pEntry->GetMsgId()).arg("")
-		, QMessageBox::Question, QMessageBox::Yes | QMessageBox::Default, QMessageBox::No | QMessageBox::Escape, QMessageBox::NoButton).exec() != QMessageBox::Yes)
+		, QMessageBox::Question, QMessageBox::Yes | QMessageBox::Default, QMessageBox::No | QMessageBox::Escape, QMessageBox::NoButton, this).exec() != QMessageBox::Yes)
 		return;
 
 	m_HiddenMessages.insert(pEntry->GetMsgId(), pEntry->GetMsgData(1));
@@ -230,7 +241,10 @@ void CPopUpWindow::AddUserPrompt(quint32 RequestId, const QVariantMap& Data, qui
 	CPopUpPrompt* pEntry = new CPopUpPrompt(Message, RequestId, Result, pProcess, this);
 	switch (pEntry->m_Result["id"].toInt())
 	{
-		case CSbieAPI::eInetBlockade: pEntry->m_pRemember->setChecked(true); break;
+		case CSbieAPI::eInetBlockade: 
+			pEntry->AddAddToList();
+			pEntry->m_pRemember->setChecked(true); 
+			break;
 	}
 	connect(pEntry, SIGNAL(PromptResult(int)), this, SLOT(OnPromptResult(int)));
 	AddEntry(pEntry);
@@ -252,8 +266,14 @@ void CPopUpWindow::SendPromptResult(CPopUpPrompt* pEntry, int retval)
 	{
 		switch (pEntry->m_Result["id"].toInt())
 		{
-			case CSbieAPI::ePrintSpooler: theAPI->SetProcessExemption(pEntry->m_pProcess->GetProcessId(), 'splr', true); break;
-			case CSbieAPI::eInetBlockade: theAPI->SetProcessExemption(pEntry->m_pProcess->GetProcessId(), 'inet', true); break;
+			case CSbieAPI::ePrintSpooler: 
+				theAPI->SetProcessExemption(pEntry->m_pProcess->GetProcessId(), 'splr', true); 
+				break;
+			case CSbieAPI::eInetBlockade: 
+				if (pEntry->m_bAddToList)
+					pEntry->m_pProcess.objectCast<CSbieProcess>()->SetInternetAccess(true);
+				theAPI->SetProcessExemption(pEntry->m_pProcess->GetProcessId(), 'inet', true);
+				break;
 		}
 	}
 
@@ -275,13 +295,17 @@ void CPopUpWindow::AddFileToRecover(const QString& FilePath, const QString& BoxN
 
 	CBoxedProcessPtr pProcess = theAPI->GetProcessById(ProcessId);
 
-	QString Message = tr("The file %1 is eligible for quick recovery from %2.\r\nFull path: %3\r\nWriten by: %4")
-		.arg(FilePath.mid(FilePath.lastIndexOf("\\") + 1)).arg(QString(BoxName).replace("_", " ")).arg(FilePath)
+	QString Message = tr("%1 is eligible for quick recovery from %2.\r\nThe file was written by: %3")
+		.arg(FilePath.mid(FilePath.lastIndexOf("\\") + 1)).arg(QString(BoxName).replace("_", " "))
 		.arg(pProcess.isNull() ? tr("an UNKNOWN process.") : tr("%1 (%2)").arg(pProcess->GetProcessName()).arg(pProcess->GetProcessId()));
 
 	CPopUpRecovery* pEntry = new CPopUpRecovery(Message, FilePath, BoxName, this);
+
+	QStringList RecoverTargets = theAPI->GetUserSettings()->GetTextList("SbieCtrl_RecoverTarget", true);
+	pEntry->m_pTarget->insertItems(pEntry->m_pTarget->count()-1, RecoverTargets);
+
 	connect(pEntry, SIGNAL(Dismiss(int)), this, SLOT(OnDismiss(int)));
-	connect(pEntry, SIGNAL(RecoverFile(bool)), this, SLOT(OnRecoverFile(bool)));
+	connect(pEntry, SIGNAL(RecoverFile(int)), this, SLOT(OnRecoverFile(int)));
 	connect(pEntry, SIGNAL(OpenRecovery()), this, SLOT(OnOpenRecovery()));
 	AddEntry(pEntry);
 }
@@ -300,7 +324,7 @@ void CPopUpWindow::OnDismiss(int iFlag)
 			pBox.objectCast<CSandBoxPlus>()->SetSuspendRecovery();
 	}
 	
-	if ((iFlag & 0x01) != 0) // dismiss all fromt his box
+	if ((iFlag & 0x01) != 0) // dismiss all from this box
 	{
 		for (int i = 0; i < ui.table->rowCount(); i++)
 		{
@@ -314,18 +338,18 @@ void CPopUpWindow::OnDismiss(int iFlag)
 	}
 }
 
-void CPopUpWindow::OnRecoverFile(bool bBrowse)
+void CPopUpWindow::OnRecoverFile(int Action)
 {
 	CPopUpRecovery* pEntry = qobject_cast<CPopUpRecovery*>(sender());
 
-	QString RecoveryFolder;
-	if (bBrowse)
-		RecoveryFolder = QFileDialog::getExistingDirectory(this, tr("Select Directory")).replace("/", "\\");
-	else
-		RecoveryFolder = pEntry->m_FilePath.left(pEntry->m_FilePath.lastIndexOf("\\"));
+	QString RecoveryFolder = pEntry->m_pTarget->currentText();
 
-	if (RecoveryFolder.isEmpty())
-		return;
+	if (pEntry->m_pTarget->currentIndex() != 0 || pEntry->m_ListCleared) {
+		QStringList RecoverTargets;
+		for (int i = 2; i < pEntry->m_pTarget->count() - 1; i++)
+			RecoverTargets.append(pEntry->m_pTarget->itemText(i));
+		theAPI->GetUserSettings()->UpdateTextList("SbieCtrl_RecoverTarget", RecoverTargets, true);
+	}
 
 	QString FileName = pEntry->m_FilePath.mid(pEntry->m_FilePath.lastIndexOf("\\") + 1);
 	QString BoxedFilePath = theAPI->GetBoxedPath(pEntry->m_BoxName, pEntry->m_FilePath);
@@ -333,7 +357,7 @@ void CPopUpWindow::OnRecoverFile(bool bBrowse)
 	QList<QPair<QString, QString>> FileList;
 	FileList.append(qMakePair(BoxedFilePath, RecoveryFolder + "\\" + FileName));
 
-	SB_PROGRESS Status = theGUI->RecoverFiles(FileList);
+	SB_PROGRESS Status = theGUI->RecoverFiles(FileList, Action);
 	if (Status.GetStatus() == OP_ASYNC)
 		theGUI->AddAsyncOp(Status.GetValue());
 		
@@ -346,7 +370,7 @@ void CPopUpWindow::OnOpenRecovery()
 
 	emit RecoveryRequested(pEntry->m_BoxName);
 
-	// since we opened the recvery dialog we can dismiss all the notification for this box
+	// since we opened the recovery dialog, we can dismiss all the notifications for this box
 	OnDismiss(0x01);
 }
 

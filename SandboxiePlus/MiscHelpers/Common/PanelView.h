@@ -13,6 +13,10 @@ public:
 	static void					SetMaxCellWidth(int iMaxWidth) { m_MaxCellWidth = iMaxWidth; }
 	static void					SetCellSeparator(const QString& Sep) { m_CellSeparator = Sep; }
 
+	static QString				m_CopyCell;
+	static QString				m_CopyRow;
+	static QString				m_CopyPanel;
+
 protected slots:
 	virtual void				OnMenu(const QPoint& Point);
 
@@ -154,6 +158,7 @@ public:
 		QStyle* pStyle = QStyleFactory::create("windows");
 		m_pTreeList->setStyle(pStyle);
 #endif
+		m_pTreeList->setExpandsOnDoubleClick(false);
 		m_pTreeList->setSortingEnabled(true);
 
 		m_pTreeList->setContextMenuPolicy(Qt::CustomContextMenu);

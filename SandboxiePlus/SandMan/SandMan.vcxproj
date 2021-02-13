@@ -75,23 +75,28 @@
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtInstall>msvc2015_64</QtInstall>
+    <QtInstall>msvc2019_64</QtInstall>
     <QtModules>concurrent;core;gui;network;widgets;winextras</QtModules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="QtSettings">
-    <QtInstall>msvc2015_64</QtInstall>
+    <QtInstall>msvc2019</QtInstall>
     <QtModules>concurrent;core;gui;network;widgets;winextras</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <QtInstall>msvc2015_64</QtInstall>
+    <QtInstall>msvc2019_64</QtInstall>
     <QtModules>concurrent;core;gui;network;widgets;winextras</QtModules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="QtSettings">
-    <QtInstall>msvc2015</QtInstall>
+    <QtInstall>msvc2019</QtInstall>
     <QtModules>concurrent;core;gui;network;widgets;winextras</QtModules>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
@@ -150,7 +155,7 @@
     </QtMoc>
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DebugInformationFormat />
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -161,7 +166,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>QSbieAPI.lib;MiscHelpers.lib;ntdll.lib;QtSingleApp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -171,8 +176,7 @@
     </QtMoc>
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DebugInformationFormat>
-      </DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -184,7 +188,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalOptions> /SUBSYSTEM:WINDOWS</AdditionalOptions>
       <AdditionalDependencies>QSbieAPI.lib;MiscHelpers.lib;ntdll.lib;QtSingleApp.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -193,7 +197,9 @@
   <ItemGroup>
     <ClCompile Include="ApiLog.cpp" />
     <ClCompile Include="Dialogs\MultiErrorDialog.cpp" />
+    <ClCompile Include="Helpers\FindTool.cpp" />
     <ClCompile Include="Helpers\WinAdmin.cpp" />
+    <ClCompile Include="Helpers\WindowFromPointEx.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Models\ApiMonModel.cpp" />
     <ClCompile Include="Models\ResMonModel.cpp" />
@@ -207,6 +213,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Views\SbieView.cpp" />
+    <ClCompile Include="Windows\NewBoxWindow.cpp" />
     <ClCompile Include="Windows\OptionsWindow.cpp" />
     <ClCompile Include="Windows\PopUpWindow.cpp" />
     <ClCompile Include="Windows\RecoveryWindow.cpp" />
@@ -214,6 +221,7 @@
     <ClCompile Include="Windows\SnapshotsWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="Windows\NewBoxWindow.h" />
     <QtMoc Include="Windows\RecoveryWindow.h" />
     <QtMoc Include="Windows\PopUpWindow.h" />
     <QtMoc Include="Windows\SnapshotsWindow.h" />
@@ -226,8 +234,9 @@
     <QtMoc Include="ApiLog.h" />
     <QtMoc Include="Dialogs\MultiErrorDialog.h" />
     <QtMoc Include="Models\ApiMonModel.h" />
+    <ClInclude Include="Helpers\FindTool.h" />
     <ClInclude Include="Helpers\WinAdmin.h" />
-    <ClInclude Include="Resources\resource.h" />
+    <ClInclude Include="resource.h" />
     <QtMoc Include="SbiePlusAPI.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
@@ -235,17 +244,30 @@
     <QtRcc Include="Resources\SandMan.qrc" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resources\SandMan.rc" />
-  </ItemGroup>
-  <ItemGroup>
+    <Image Include="Resources\finder-empty.bmp" />
+    <Image Include="Resources\finder-full.bmp" />
     <Image Include="Resources\SandMan.ico" />
   </ItemGroup>
   <ItemGroup>
+    <QtUic Include="Forms\NewBoxWindow.ui" />
     <QtUic Include="Forms\OptionsWindow.ui" />
     <QtUic Include="Forms\PopUpWindow.ui" />
     <QtUic Include="Forms\RecoveryWindow.ui" />
     <QtUic Include="Forms\SettingsWindow.ui" />
     <QtUic Include="Forms\SnapshotsWindow.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\finder.cur" />
+    <None Include="sandman_de.ts" />
+    <None Include="sandman_pl.ts" />
+    <None Include="sandman_pt.ts" />
+    <None Include="sandman_ru.ts" />
+    <None Include="sandman_tr.ts" />
+    <None Include="sandman_zh-TW.ts" />
+    <None Include="sandman_zh-CN.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SandMan.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

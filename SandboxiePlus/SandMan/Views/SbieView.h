@@ -17,11 +17,16 @@ public:
 
 	//virtual void				UpdateRunMenu();
 
+	virtual QString				AddNewBox();
+	virtual void				SelectBox(const QString& Name);
+
 signals:
 	void						RecoveryRequested(const QString& BoxName);
 
 public slots:
+	void						Clear();
 	void						Refresh();
+	void						ReloadGroups();
 
 private slots:
 	void						OnToolTipCallback(const QVariant& ID, QString& ToolTip);
@@ -29,6 +34,7 @@ private slots:
 	void						OnDoubleClicked(const QModelIndex& index);
 	void						ProcessSelection(const QItemSelection& selected, const QItemSelection& deselected);
 
+	void						OnGroupAction();
 	void						OnSandBoxAction();
 	void						OnProcessAction();
 
@@ -39,7 +45,11 @@ protected:
 
 	virtual void				UpdateRunMenu(const CSandBoxPtr& pBox);
 
+	QMap<QString, QStringList>	m_Groups;
+
 private:
+
+	void					UpdateGroupMenu();
 
 	QVBoxLayout*			m_pMainLayout;
 
@@ -47,7 +57,10 @@ private:
 	CSbieModel*				m_pSbieModel;
 	QSortFilterProxyModel*	m_pSortProxy;
 
-
+	QAction*				m_pNewBox;
+	QAction*				m_pAddGroupe;
+	QAction*				m_pDelGroupe;
+	int						m_iMenuTop;
 	QMenu*					m_pMenuRun;
 	QAction*				m_pMenuRunAny;
 	QAction*				m_pMenuRunMenu;
@@ -68,17 +81,22 @@ private:
 	QAction*				m_pMenuRecover;
 	QAction*				m_pMenuCleanUp;
 	QAction*				m_pMenuRemove;
+	QMenu*					m_pMenuMoveTo;
+	int						m_iMoveTo;
 	QAction*				m_pMenuRename;
 	int						m_iMenuBox;
 
 	QAction*				m_pMenuTerminate;
+	QAction*				m_pMenuLinkTo;
 	QMenu*					m_pMenuPreset;
 	QAction*				m_pMenuBlackList;
+	QAction*				m_pMenuAllowInternet;
+	QAction*				m_pMenuMarkForced;
 	QAction*				m_pMenuMarkLinger;
 	QAction*				m_pMenuMarkLeader;
 	QAction*				m_pMenuPinToRun;
-	QAction*				m_pMenuSuspend;
-	QAction*				m_pMenuResume;
+	//QAction*				m_pMenuSuspend;
+	//QAction*				m_pMenuResume;
 	int						m_iMenuProc;
 
 	int						m_iMenuRun;

@@ -1,11 +1,10 @@
 #include "stdafx.h"
 #include "SbiePlusAPI.h"
 #include "..\MiscHelpers\Common\Common.h"
-
+#include <windows.h>
 
 CSbiePlusAPI::CSbiePlusAPI(QObject* parent) : CSbieAPI(parent)
 {
-
 }
 
 CSbiePlusAPI::~CSbiePlusAPI()
@@ -22,9 +21,52 @@ CBoxedProcess* CSbiePlusAPI::NewBoxedProcess(quint32 ProcessId, class CSandBox* 
 	return new CSbieProcess(ProcessId, pBox);
 }
 
+CBoxedProcessPtr CSbiePlusAPI::OnProcessBoxed(quint32 ProcessId, const QString& Path, const QString& Box, quint32 ParentId)
+{
+	CBoxedProcessPtr pProcess = CSbieAPI::OnProcessBoxed(ProcessId, Path, Box, ParentId);
+	if (!pProcess.isNull() && pProcess->GetFileName().indexOf(theAPI->GetSbiePath(), 0, Qt::CaseInsensitive) != 0) {
+		CSandBoxPlus* pBox = pProcess.objectCast<CSbieProcess>()->GetBox();
+		pBox->m_RecentPrograms.insert(pProcess->GetProcessName());
+	}
+	return pProcess;
+}
+
+BOOL CALLBACK CSbiePlusAPI__WindowEnum(HWND hwnd, LPARAM lParam)
+{
+	if (GetParent(hwnd) || GetWindow(hwnd, GW_OWNER))
+		return TRUE;
+	ULONG style = GetWindowLong(hwnd, GWL_STYLE);
+	if ((style & (WS_CAPTION | WS_SYSMENU)) != (WS_CAPTION | WS_SYSMENU))
+		return TRUE;
+	if (!IsWindowVisible(hwnd))
+		return TRUE;
+	/*
+	if ((style & WS_OVERLAPPEDWINDOW) != WS_OVERLAPPEDWINDOW &&
+		(style & WS_POPUPWINDOW)      != WS_POPUPWINDOW)
+		return TRUE;
+	*/
+
+	ULONG pid;
+	GetWindowThreadProcessId(hwnd, &pid);
+
+	QMultiMap<quint32, QString>& m_WindowMap = *((QMultiMap<quint32, QString>*)(lParam));
+
+	WCHAR title[256];
+	GetWindowTextW(hwnd, title, 256);
+
+	m_WindowMap.insert(pid, QString::fromWCharArray(title));
+
+	return TRUE;
+}
+
+void CSbiePlusAPI::UpdateWindowMap()
+{
+	m_WindowMap.clear();
+	EnumWindows(CSbiePlusAPI__WindowEnum, (LPARAM)&m_WindowMap);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
-// CSandBox
+// CSandBoxPlus
 //
 
 CSandBoxPlus::CSandBoxPlus(const QString& BoxName, class CSbieAPI* pAPI) : CSandBox(BoxName, pAPI)
@@ -62,16 +104,16 @@ void CSandBoxPlus::UpdateDetails()
 
 	m_bDropRights = GetBool("DropAdminRights", false);
 
-	if (CheckOpenToken())
+	if (CheckOpenToken() || GetBool("StripSystemPrivileges", false))
 		m_iUnsecureDebugging = 1;
-	else if(GetBool("ExposeBoxedSystem", false) || GetBool("UnrestrictedSCM", false))
+	else if(GetBool("ExposeBoxedSystem", false) || GetBool("UnrestrictedSCM", false) || GetBool("RunServicesAsSystem", false))
 		m_iUnsecureDebugging = 2;
 	else
 		m_iUnsecureDebugging = 0;
 
 	//GetBool("SandboxieLogon", false)
 
-	m_bSecurityRestricted = m_iUnsecureDebugging == 0 && (GetBool("DropAdminRights", false) || GetBool("ProtectRpcSs", false) || !GetBool("OpenDefaultClsid", true));
+	m_bSecurityRestricted = m_iUnsecureDebugging == 0 && (GetBool("DropAdminRights", false));
 
 	CSandBox::UpdateDetails();
 }
@@ -85,6 +127,9 @@ void CSandBoxPlus::CloseBox()
 
 QString CSandBoxPlus::GetStatusStr() const
 {
+	if (!m_IsEnabled)
+		return tr("Disabled");
+
 	QStringList Status;
 
 	if (m_iUnsecureDebugging == 1)
@@ -187,6 +232,46 @@ void SetInStrList(QStringList& list, const QString& str, bool bSet)
 	}
 }
 
+bool CSandBoxPlus::TestProgramGroup(const QString& Group, const QString& ProgName)
+{
+	QStringList ProcessGroups = GetTextList("ProcessGroup", false);
+	foreach(const QString & ProcessGroup, ProcessGroups)
+	{
+		StrPair GroupPaths = Split2(ProcessGroup, ",");
+		if (GroupPaths.first.compare(Group, Qt::CaseInsensitive) == 0)
+		{
+			QStringList Programs = SplitStr(GroupPaths.second, ",");
+			return FindInStrList(Programs, ProgName) != Programs.end();
+		}
+	}
+	return false;
+}
+
+void CSandBoxPlus::EditProgramGroup(const QString& Group, const QString& ProgName, bool bSet)
+{
+	QStringList ProcessGroups = GetTextList("ProcessGroup", false);
+
+	QStringList Programs;
+	QStringList::iterator I = ProcessGroups.begin();
+	for (; I != ProcessGroups.end(); ++I)
+	{
+		StrPair GroupPaths = Split2(*I, ",");
+		if (GroupPaths.first.compare(Group, Qt::CaseInsensitive) == 0)
+		{
+			Programs = SplitStr(GroupPaths.second, ",");
+			break;
+		}
+	}
+	if (I == ProcessGroups.end())
+		I = ProcessGroups.insert(I, "");
+
+	SetInStrList(Programs, ProgName, bSet);
+
+	*I = Group + "," + Programs.join(",");
+
+	UpdateTextList("ProcessGroup", ProcessGroups, false);
+}
+
 void CSandBoxPlus::BlockProgram(const QString& ProgName)
 {
 	bool WhiteList = false;
@@ -211,27 +296,30 @@ void CSandBoxPlus::BlockProgram(const QString& ProgName)
 		InsertText("ClosedIpcPath", "<StartRunAccess>,*");
 	}
 
-	QStringList ProcessGroups = GetTextList("ProcessGroup", false);
+	EditProgramGroup("<StartRunAccess>", ProgName, !WhiteList);
+}
 
-	QStringList Programs;
-	QStringList::iterator I = ProcessGroups.begin();
-	for (; I != ProcessGroups.end(); ++I)
-	{
-		StrPair GroupPaths = Split2(*I, ",");
-		if (GroupPaths.first == "<StartRunAccess>")
-		{
-			Programs = SplitStr(GroupPaths.second, ",");
-			break;
-		}
-	}
-	if (I == ProcessGroups.end())
-		I = ProcessGroups.insert(I, "");
+void CSandBoxPlus::SetInternetAccess(const QString& ProgName, bool bSet)
+{
+	EditProgramGroup("<InternetAccess>", ProgName, bSet);
+}
 
-	SetInStrList(Programs, ProgName, !WhiteList);
+bool CSandBoxPlus::HasInternetAccess(const QString& ProgName)
+{
+	return TestProgramGroup("<InternetAccess>", ProgName);
+}
 
-	*I = "<StartRunAccess>," + Programs.join(",");
+void CSandBoxPlus::SetForcedProgram(const QString& ProgName, bool bSet)
+{
+	QStringList Programs = GetTextList("ForceProcess", false);
+	SetInStrList(Programs, ProgName, bSet);
+	UpdateTextList("ForceProcess", Programs, false);
+}
 
-	UpdateTextList("ProcessGroup", ProcessGroups, false);
+bool CSandBoxPlus::IsForcedProgram(const QString& ProgName)
+{
+	QStringList Programs = GetTextList("ForceProcess", false);
+	return FindInStrList(Programs, ProgName) != Programs.end();
 }
 
 void CSandBoxPlus::SetLingeringProgram(const QString& ProgName, bool bSet)
@@ -265,3 +353,15 @@ int	CSandBoxPlus::IsLeaderProgram(const QString& ProgName)
 	return FindInStrList(Programs, ProgName) != Programs.end() ? 1 : 0; 
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// CSbieProcess
+//
+
+QString CSbieProcess::GetStatusStr() const
+{
+	if (m_uTerminated != 0)
+		return tr("Terminated");
+	//if (m_bSuspended)
+	//	return tr("Suspended");
+	return tr("Running");
+}

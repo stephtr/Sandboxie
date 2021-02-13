@@ -1,6 +1,6 @@
 /*
  * Copyright 2004-2020 Sandboxie Holdings, LLC 
- * Copyright 2020 David Xanatos, xanasoft.com
+ * Copyright 2020-2021 David Xanatos, xanasoft.com
  *
  * This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -201,32 +201,19 @@ _FX BOOLEAN Ipc_Init(void)
     Api_SetFunction(API_SET_LSA_AUTH_PKG,       Ipc_Api_SetLsaAuthPkg);
 #endif ! _WIN64
 
-    if (Driver_OsVersion >= DRIVER_WINDOWS_81) {
-        if (Mem_GetLockResource(&Ipc_Dynamic_Ports[SPOOLER_PORT].pPortLock, TRUE)) {
-            Api_SetFunction(API_GET_SPOOLER_PORT, Ipc_Api_GetSpoolerPortFromPid);
-        }
-        else
-            return FALSE;
-    }
+    Api_SetFunction(API_GET_DYNAMIC_PORT_FROM_PID, Ipc_Api_GetDynamicPortFromPid);
+    Api_SetFunction(API_OPEN_DYNAMIC_PORT, Ipc_Api_OpenDynamicPort);
 
-    if (Driver_OsVersion >= DRIVER_WINDOWS_10) {
-        if (Mem_GetLockResource(&Ipc_Dynamic_Ports[WPAD_PORT].pPortLock, TRUE)) {
-            Api_SetFunction(API_GET_WPAD_PORT, Ipc_Api_GetWpadPortFromPid);
-        }
-        else
-            return FALSE;
-        if (Mem_GetLockResource(&Ipc_Dynamic_Ports[GAME_CONFIG_STORE_PORT].pPortLock, TRUE)) {
-            Api_SetFunction(API_SET_GAME_CONFIG_STORE_PORT, Ipc_Api_SetGameConfigStorePort);
-        }
-        else
-            return FALSE;
-        if (Mem_GetLockResource(&Ipc_Dynamic_Ports[SMART_CARD_PORT].pPortLock, TRUE)) {
-            Api_SetFunction(API_SET_SMART_CARD_PORT, Ipc_Api_SetSmartCardPort);
-        }
-        else
-            return FALSE;
-    }
-
+    // prepare dynamic ports
+    if (!Mem_GetLockResource(&Ipc_Dynamic_Ports[WPAD_PORT].pPortLock, TRUE)
+     || !Mem_GetLockResource(&Ipc_Dynamic_Ports[SMART_CARD_PORT].pPortLock, TRUE)
+     || !Mem_GetLockResource(&Ipc_Dynamic_Ports[BT_PORT].pPortLock, TRUE)
+     // since Windows 8
+     || !Mem_GetLockResource(&Ipc_Dynamic_Ports[SPOOLER_PORT].pPortLock, TRUE)
+     // since Windows 10
+     || !Mem_GetLockResource(&Ipc_Dynamic_Ports[GAME_CONFIG_STORE_PORT].pPortLock, TRUE)
+        ) return FALSE;
+    
     //
     // finish
     //
@@ -529,6 +516,8 @@ _FX BOOLEAN Ipc_InitPaths(PROCESS *proc)
         L"\\RPC Control\\LSARPC_ENDPOINT",
         L"\\RPC Control\\umpo",
         L"*\\BaseNamedObjects*\\FlipEx*",
+        L"*\\BaseNamedObjects*\\FontCachePort",
+        L"*\\BaseNamedObjects*\\FntCache-*",
         NULL
     };
     static const WCHAR *openpaths_windows8[] = {
@@ -550,6 +539,7 @@ _FX BOOLEAN Ipc_InitPaths(PROCESS *proc)
         L"*\\BaseNamedObjects*\\CoreMessagingRegistrar",
         L"\\RPC Control\\webcache_*",
         L"*\\BaseNamedObjects\\windows_webcache_counters_*",
+        L"*\\BaseNamedObjects\\[CoreUI]-*",
         NULL
     };
 
@@ -587,12 +577,15 @@ _FX BOOLEAN Ipc_InitPaths(PROCESS *proc)
     // add default/built-in open paths
     //
 
-    for (i = 0; openpaths[i] && ok; ++i) {
-        ok = Process_AddPath(proc, &proc->open_ipc_paths, NULL,
-                             TRUE, openpaths[i], FALSE);
+    if (ok) {
+
+        for (i = 0; openpaths[i] && ok; ++i) {
+            ok = Process_AddPath(proc, &proc->open_ipc_paths, NULL,
+                                 TRUE, openpaths[i], FALSE);
+        }
     }
 
-    if (Driver_OsVersion >= DRIVER_WINDOWS_VISTA) {
+    if (ok && Driver_OsVersion >= DRIVER_WINDOWS_VISTA) {
 
         for (i = 0; openpaths_vista[i] && ok; ++i) {
             ok = Process_AddPath(proc, &proc->open_ipc_paths, NULL,
@@ -600,7 +593,7 @@ _FX BOOLEAN Ipc_InitPaths(PROCESS *proc)
         }
     }
 
-    if (Driver_OsVersion >= DRIVER_WINDOWS_7) {
+    if (ok && Driver_OsVersion >= DRIVER_WINDOWS_7) {
 
         for (i = 0; openpaths_windows7[i] && ok; ++i) {
             ok = Process_AddPath(proc, &proc->open_ipc_paths, NULL,
@@ -608,7 +601,7 @@ _FX BOOLEAN Ipc_InitPaths(PROCESS *proc)
         }
     }
 
-    if (Driver_OsVersion >= DRIVER_WINDOWS_8) {
+    if (ok && Driver_OsVersion >= DRIVER_WINDOWS_8) {
 
         for (i = 0; openpaths_windows8[i] && ok; ++i) {
             ok = Process_AddPath(proc, &proc->open_ipc_paths, NULL,
@@ -616,7 +609,7 @@ _FX BOOLEAN Ipc_InitPaths(PROCESS *proc)
         }
     }
 
-    if (Driver_OsVersion >= DRIVER_WINDOWS_10) {
+    if (ok && Driver_OsVersion >= DRIVER_WINDOWS_10) {
 
         for (i = 0; openpaths_windows10[i] && ok; ++i) {
             ok = Process_AddPath(proc, &proc->open_ipc_paths, NULL,
@@ -656,8 +649,14 @@ _FX BOOLEAN Ipc_InitPaths(PROCESS *proc)
     proc->ipc_block_password =
         Conf_Get_Boolean(proc->box->name, L"BlockPassword", 0, TRUE);
 
-    proc->m_boolAllowSpoolerPrintToFile = 
+    proc->ipc_open_lsa_endpoint =
+        Conf_Get_Boolean(proc->box->name, L"OpenLsaEndpoint", 0, FALSE);
+
+    proc->ipc_allowSpoolerPrintToFile =
         Conf_Get_Boolean(proc->box->name, L"AllowSpoolerPrintToFile", 0, FALSE);
+
+    proc->ipc_openPrintSpooler =
+        Conf_Get_Boolean(proc->box->name, L"OpenPrintSpooler", 0, FALSE);
 
     //
     // if process is launched as a COM server process by DcomLaunch service
@@ -871,6 +870,7 @@ _FX NTSTATUS Ipc_CheckGenericObject(
                 status = STATUS_ACCESS_DENIED;
         }
 
+
         else if (!is_open && !is_closed)
         {
             int i;
@@ -880,7 +880,7 @@ _FX NTSTATUS Ipc_CheckGenericObject(
                 {
                     KeEnterCriticalRegion();
                     ExAcquireResourceSharedLite(Ipc_Dynamic_Ports[i].pPortLock, TRUE);
-
+        
                     if (*Ipc_Dynamic_Ports[i].wstrPortName
                         && (Name->Length >= 32 * sizeof(WCHAR))
                         && _wcsicmp(Name->Buffer, Ipc_Dynamic_Ports[i].wstrPortName) == 0)
@@ -889,9 +889,10 @@ _FX NTSTATUS Ipc_CheckGenericObject(
                         // and RpcBindingFromStringBindingW in core/dll/rpcrt.c
                         is_open = TRUE;
                     }
-
+        
                     ExReleaseResourceLite(Ipc_Dynamic_Ports[i].pPortLock);
                     KeLeaveCriticalRegion();
+        
                     if (is_open)
                         break;
                 }
@@ -933,12 +934,21 @@ _FX NTSTATUS Ipc_CheckGenericObject(
         }
 
         if (letter) {
+
+            USHORT mon_type = MONITOR_IPC;
+            if (!IsBoxedPath) {
+                if (NT_SUCCESS(status))
+                    mon_type |= MONITOR_OPEN;
+                else
+                    mon_type |= MONITOR_DENY;
+            }
+
             swprintf(access_str, L"(I%c) %08X", letter, GrantedAccess);
-            Log_Debug_Msg(MONITOR_IPC, access_str, Name->Buffer);
+            Log_Debug_Msg(mon_type, access_str, Name->Buffer);
         }
     }
 
-    if (Session_MonitorCount) {
+    else if (Session_MonitorCount) {
 
         USHORT mon_type = MONITOR_IPC;
         WCHAR *mon_name = Name->Buffer;
@@ -992,6 +1002,7 @@ _FX NTSTATUS Ipc_CheckJobObject(
     // is inside the sandbox
     //
 
+    if (!Conf_Get_Boolean(proc->box->name, L"NoAddProcessToJob", 0, FALSE))
     if (GrantedAccess & (JOB_OBJECT_ASSIGN_PROCESS | JOB_OBJECT_TERMINATE))
         return STATUS_ACCESS_DENIED;
 

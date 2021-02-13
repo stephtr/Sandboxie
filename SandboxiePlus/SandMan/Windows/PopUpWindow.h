@@ -44,9 +44,9 @@ public:
 		{
 			QToolButton* pHelp = new QToolButton();
 			pHelp->setText(tr("?"));
-			pHelp->setToolTip(tr("Visit %1 for a detailes explenation.").arg(QString("https://xanasoft.com/sandboxie/sbie%1/").arg(GetMsgId())));
+			pHelp->setToolTip(tr("Visit %1 for a detailed explanation.").arg(QString("https://sandboxie-plus.com/go.php?to=sbie-sbie%1/").arg(GetMsgId())));
 			pHelp->setMaximumWidth(16);
-			QObject::connect(pHelp, SIGNAL(pressed()), this, SLOT(OnHelp()));
+			QObject::connect(pHelp, SIGNAL(clicked(bool)), this, SLOT(OnHelp()));
 			m_pMainLayout->addWidget(pHelp, 0, 1);
 
 
@@ -58,7 +58,7 @@ public:
 			pMenu->addAction(tr("Hide all such messages"), this, SIGNAL(Hide()));
 			pDismiss->setMenu(pMenu);
 			//QObject::connect(pDismiss, SIGNAL(triggered(QAction*)), , SLOT());
-			QObject::connect(pDismiss, SIGNAL(pressed()), this, SIGNAL(Dismiss()));
+			QObject::connect(pDismiss, SIGNAL(clicked(bool)), this, SIGNAL(Dismiss()));
 			m_pMainLayout->addWidget(pDismiss, 0, 2);
 		}
 	}
@@ -73,7 +73,7 @@ signals:
 	void				Hide();
 
 private slots:
-	void				OnHelp() { QDesktopServices::openUrl(QUrl(QString("https://xanasoft.com/sandboxie/sbie%1/").arg(GetMsgId()))); }
+	void				OnHelp() { QDesktopServices::openUrl(QUrl(QString("https://sandboxie-plus.com/go.php?to=sbie-sbie%1/").arg(GetMsgId()))); }
 
 protected:
 	quint32				m_MsgCode;
@@ -89,11 +89,12 @@ public:
 		m_RequestId = RequestId;
 		m_Result = Result;
 		m_pProcess = pProcess;
+		m_bAddToList = false;
 
-		QLabel* pLabel = new QLabel(Message);
-		pLabel->setToolTip(Message);
-		pLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Maximum);
-		m_pMainLayout->addWidget(pLabel, 0, 0, 1, 5);
+		m_pLabel = new QLabel(Message);
+		m_pLabel->setToolTip(Message);
+		m_pLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Maximum);
+		m_pMainLayout->addWidget(m_pLabel, 0, 0, 1, 5);
 
 		m_pRemember = new QCheckBox(tr("Remember for this process"));
 		m_pRemember->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
@@ -106,17 +107,17 @@ public:
 
 		m_pYes = new QToolButton();
 		m_pYes->setText(tr("Yes"));
-		connect(m_pYes, SIGNAL(pressed()), this, SLOT(OnAccepted()));
+		connect(m_pYes, SIGNAL(clicked(bool)), this, SLOT(OnAccepted()));
 		m_pMainLayout->addWidget(m_pYes, 1, 2);
 
 		m_pNo = new QToolButton();
 		m_pNo->setText(tr("No"));
-		connect(m_pNo, SIGNAL(pressed()), this, SLOT(OnRejected()));
+		connect(m_pNo, SIGNAL(clicked(bool)), this, SLOT(OnRejected()));
 		m_pMainLayout->addWidget(m_pNo, 1, 3);
 
 		m_pTerminate = new QToolButton();
 		m_pTerminate->setText(tr("Terminate"));
-		connect(m_pTerminate, SIGNAL(pressed()), this, SLOT(OnTerminate()));
+		connect(m_pTerminate, SIGNAL(clicked(bool)), this, SLOT(OnTerminate()));
 		m_pMainLayout->addWidget(m_pTerminate, 1, 4);
 
 
@@ -132,10 +133,19 @@ public:
 			killTimer(m_uTimerID);
 	}
 
+	void AddAddToList()
+	{
+		m_pYes->setPopupMode(QToolButton::MenuButtonPopup);
+		QMenu* pMenu = new QMenu();
+		pMenu->addAction(tr("Yes and add to allowed programs"), this, SLOT(OnAcceptedAlways()));
+		m_pYes->setMenu(pMenu);
+	}
+
 signals:
 	void		PromptResult(int retval);
 
 private slots:
+	void		OnAcceptedAlways() { m_bAddToList = true; emit PromptResult(1); }
 	void		OnAccepted() { emit PromptResult(1); }
 	void		OnRejected() { emit PromptResult(0); }
 	void		OnTerminate() { emit PromptResult(-1); }
@@ -151,7 +161,14 @@ protected:
 		{
 			m_iTimeOutSec--;
 
-			repaint();
+			extern bool CPopUpWindow__DarkMode;
+			if (CPopUpWindow__DarkMode) {
+				QPalette palette = m_pLabel->palette();
+				palette.setColor(QPalette::Text, Qt::red);
+				m_pLabel->setPalette(palette);
+			}
+			else
+				repaint();
 		}
 
 		if (m_pProcess->IsTerminated()) {
@@ -172,7 +189,8 @@ protected:
 	{
 		QWidget::paintEvent(event);
 
-		if (m_iTimeOutSec % 2) 
+		extern bool CPopUpWindow__DarkMode;
+		if (!CPopUpWindow__DarkMode && (m_iTimeOutSec % 2) != 0) 
 		{
 			QPainter p(this);
 			p.fillRect(2, 1, width() - 4, height() - 2, QColor(0xFF, 0xCC, 0xCC));
@@ -182,7 +200,9 @@ protected:
 	quint32				m_RequestId;
 	QVariantMap			m_Result;
 	CBoxedProcessPtr	m_pProcess;
+	bool				m_bAddToList;
 
+	QLabel*				m_pLabel;
 	QCheckBox*			m_pRemember;
 	qint32				m_iTimeOutSec;
 	QLabel*				m_pTimeOut;
@@ -203,19 +223,41 @@ public:
 		QLabel* pLabel = new QLabel(Message);
 		pLabel->setToolTip(Message);
 		pLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Maximum);
-		m_pMainLayout->addWidget(pLabel, 0, 0, 2, 1);
+		//pLabel->setWordWrap(true);
+		extern bool CPopUpWindow__DarkMode;
+		if(CPopUpWindow__DarkMode) {
+			QPalette palette = pLabel->palette();
+			palette.setColor(QPalette::Text, Qt::green);
+			pLabel->setPalette(palette);
+		}
+		m_pMainLayout->addWidget(pLabel, 0, 0, 2, 4);
+
+		m_pMainLayout->addWidget(new QLabel(tr("Recover to:")), 2, 0);
+		m_pTarget = new QComboBox();
+
+		m_LastTargetIndex = 0;
+		m_pTarget->addItem(m_FilePath.left(m_FilePath.lastIndexOf("\\")));
+		m_pTarget->addItem(tr("Browse"), 1);
+		m_pTarget->addItem(tr("Clear folder list"), -1);
+		m_ListCleared = false;
+		connect(m_pTarget, SIGNAL(currentIndexChanged(int)), this, SLOT(OnTargetChanged()));
+
+		m_pTarget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		m_pMainLayout->addWidget(m_pTarget, 2, 1);
 
 		QToolButton* pRecover = new QToolButton();
 		pRecover->setText(tr("Recover"));
 		pRecover->setToolTip(tr("Recover the file to original location"));
 		pRecover->setPopupMode(QToolButton::MenuButtonPopup);
 		QMenu* pRecMenu = new QMenu();
-		pRecMenu->addAction(tr("Recover file to sellected folder"), this, SLOT(OnRecoverTo()));
+		pRecMenu->addAction(tr("Recover && Explore"), this, SLOT(OnRecoverExp()));
+		pRecMenu->addAction(tr("Recover && Open/Run"), this, SLOT(OnRecoverRun()));
+		pRecMenu->addSeparator();
 		pRecMenu->addAction(tr("Open file recovery for this box"), this, SIGNAL(OpenRecovery()));
 		pRecover->setMenu(pRecMenu);
 		//QObject::connect(pRecover, SIGNAL(triggered(QAction*)), , SLOT());
-		QObject::connect(pRecover, SIGNAL(pressed()), this, SLOT(OnRecover()));
-		m_pMainLayout->addWidget(pRecover, 1, 1);
+		QObject::connect(pRecover, SIGNAL(clicked(bool)), this, SLOT(OnRecover()));
+		m_pMainLayout->addWidget(pRecover, 2, 2);
 
 
 		QToolButton* pDismiss = new QToolButton();
@@ -227,20 +269,44 @@ public:
 		pMenu->addAction(tr("Disable quick recovery until the box restarts"), this, SLOT(OnDisable()));
 		pDismiss->setMenu(pMenu);
 		//QObject::connect(pDismiss, SIGNAL(triggered(QAction*)), , SLOT());
-		QObject::connect(pDismiss, SIGNAL(pressed()), this, SIGNAL(Dismiss()));
-		m_pMainLayout->addWidget(pDismiss, 1, 2);
+		QObject::connect(pDismiss, SIGNAL(clicked(bool)), this, SIGNAL(Dismiss()));
+		m_pMainLayout->addWidget(pDismiss, 2, 3);
 	}
 
 signals:
 	void		Dismiss(int iFlag = 0);
-	void		RecoverFile(bool bBrowse);
+	void		RecoverFile(int Action = 0);
 	void		OpenRecovery();
 
 private slots:
 	void		OnDisable()		{ emit Dismiss(0x03); }
 	void		OnDismissAll()	{ emit Dismiss(0x01); }
-	void		OnRecover()		{ emit RecoverFile(false); }
-	void		OnRecoverTo()	{ emit RecoverFile(true); }
+	void		OnRecover()		{ emit RecoverFile(); }
+	void		OnRecoverRun()	{ emit RecoverFile(1); }
+	void		OnRecoverExp()  { emit RecoverFile(2); }
+
+	void		OnTargetChanged()
+	{
+		int op = m_pTarget->currentData().toInt();
+		if (op == 1)
+		{
+			QString Folder = QFileDialog::getExistingDirectory(this, tr("Select Directory")).replace("/", "\\");
+			if (Folder.isEmpty()) {
+				m_pTarget->setCurrentIndex(m_LastTargetIndex);
+				return;
+			}
+			m_LastTargetIndex = m_pTarget->count() - 1;
+			m_pTarget->insertItem(m_LastTargetIndex, Folder);
+			m_pTarget->setCurrentIndex(m_LastTargetIndex);
+		}
+		else if (op == -1)
+		{
+			while (m_pTarget->count() > 3)
+				m_pTarget->removeItem(2);
+			m_pTarget->setCurrentIndex(0);
+			m_ListCleared = true;
+		}
+	}
 
 protected:
 	friend class CPopUpWindow;
@@ -249,12 +315,18 @@ protected:
 	{
 		QWidget::paintEvent(event);
 
-		QPainter p(this);
-		p.fillRect(2, 1, width() - 4, height() - 2, QColor(0xCC, 0xFF, 0xCC));
+		extern bool CPopUpWindow__DarkMode;
+		if (!CPopUpWindow__DarkMode) {
+			QPainter p(this);
+			p.fillRect(2, 1, width() - 4, height() - 2, QColor(0xCC, 0xFF, 0xCC));
+		}
 	}
 
 	QString				m_FilePath;
 	QString				m_BoxName;
+	QComboBox*			m_pTarget;
+	int					m_LastTargetIndex;
+	bool				m_ListCleared;
 };
 
 class CPopUpProgress : public CPopUpEntry
@@ -287,7 +359,7 @@ public:
 		//pMenu->addAction(tr("Hide this progress for this process"), this, SIGNAL(Hide()));
 		//pDismiss->setMenu(pMenu);
 		//QObject::connect(pDismiss, SIGNAL(triggered(QAction*)), , SLOT());
-		QObject::connect(pDismiss, SIGNAL(pressed()), this, SIGNAL(Dismiss()));
+		QObject::connect(pDismiss, SIGNAL(clicked(bool)), this, SIGNAL(Dismiss()));
 		m_pMainLayout->addWidget(pDismiss, 1, 2);
 
 		m_iTimeOutSec = 5;
@@ -347,6 +419,8 @@ public:
 	virtual void		AddFileToRecover(const QString& FilePath, const QString& BoxName, quint32 ProcessId);
 	virtual void		ShowProgress(quint32 MsgCode, const QStringList& MsgData, quint32 ProcessId);
 
+	static void			SetDarkMode(bool bDark) { extern bool CPopUpWindow__DarkMode;  CPopUpWindow__DarkMode = bDark; }
+
 signals:
 	void				RecoveryRequested(const QString& BoxName);
 
@@ -361,7 +435,7 @@ private slots:
 	virtual void		OnPromptResult(int retval);
 
 	virtual void		OnDismiss(int iFlag);
-	virtual void		OnRecoverFile(bool bBrowse);
+	virtual void		OnRecoverFile(int Action);
 	virtual void		OnOpenRecovery();
 
 	virtual void		OnDismissProgress(bool bHide);

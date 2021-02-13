@@ -58,7 +58,7 @@ SB_STATUS CSbieUtils::DoAssist()
 	SB_STATUS Status = ExecOps(Args.mid(AssistPos + 1));
 	if (Status.IsError())
 		return Status;
-	return SB_ERR("OK", ERROR_OK);
+	return SB_ERR(ERROR_OK);
 }
 
 SB_STATUS CSbieUtils::Start(EComponent Component)
@@ -72,10 +72,11 @@ SB_STATUS CSbieUtils::Start(EComponent Component)
 
 void CSbieUtils::Start(EComponent Component, QStringList& Ops)
 {
-	if ((Component & eDriver) != 0 && GetServiceStatus(SBIEDRV) != SERVICE_RUNNING)
-		Ops.append(QString::fromWCharArray(L"kmdutil.exe|start|" SBIEDRV));
+	// Note: Service aways starts the driver
 	if ((Component & eService) != 0 && GetServiceStatus(SBIESVC) != SERVICE_RUNNING)
 		Ops.append(QString::fromWCharArray(L"kmdutil.exe|start|" SBIESVC));
+	else if ((Component & eDriver) != 0 && GetServiceStatus(SBIEDRV) != SERVICE_RUNNING)
+		Ops.append(QString::fromWCharArray(L"kmdutil.exe|start|" SBIEDRV));
 }
 
 SB_STATUS CSbieUtils::Stop(EComponent Component)
@@ -167,7 +168,7 @@ SB_STATUS CSbieUtils::ElevateOps(const QStringList& Ops)
 	shex.lpVerb = L"runas";
 
 	if (!ShellExecuteEx(&shex))
-		return SB_ERR("Admin rights required");
+		return SB_ERR(SB_NeedAdmin);
 	return SB_ERR(OP_ASYNC);
 }
 
@@ -183,7 +184,7 @@ SB_STATUS CSbieUtils::ExecOps(const QStringList& Ops)
 		Proc.waitForFinished();
 		int ret = Proc.exitCode();
 		if (ret != 0)
-			return SB_ERR("Failed to execute: " + Args.join(" "));
+			return SB_ERR(SB_ExecFail, QVariantList() << Args.join(" "));
 	}
 	return SB_OK;
 }
@@ -282,12 +283,12 @@ void CSbieUtils::RemoveContextMenu()
 //////////////////////////////////////////////////////////////////////////////
 // Shortcuts
 
-bool CreateShortcut(CSbieAPI* pApi, const QString &LinkPath, const QString &LinkName, const QString &boxname, const QString &arguments, const QString &iconPath, int iconIndex, const QString &workdir, BOOL run_elevated = 0)
+bool CSbieUtils::CreateShortcut(CSbieAPI* pApi, const QString &LinkPath, const QString &LinkName, const QString &boxname, const QString &arguments, const QString &iconPath, int iconIndex, const QString &workdir, bool bRunElevated)
 {
 	QString StartExe = pApi->GetStartPath();
 
 	QString StartArgs;
-	if (run_elevated)
+	if (bRunElevated)
 		StartArgs += "/elevated ";
 	StartArgs += "/box:" + boxname;
 	if (!arguments.isEmpty())
@@ -309,7 +310,7 @@ bool CreateShortcut(CSbieAPI* pApi, const QString &LinkPath, const QString &Link
 		if (!workdir.isEmpty())
 			pShellLink->SetWorkingDirectory(workdir.toStdWString().c_str());
 		if (!LinkName.isEmpty()) {
-			QString desc = QObject::tr("Open %1 in sandbox %2").arg(LinkName).arg(boxname);
+			QString desc = QString("%1 [%2]").arg(LinkName).arg(boxname);
 			pShellLink->SetDescription(desc.toStdWString().c_str());
 		}
 
@@ -329,35 +330,7 @@ bool CreateShortcut(CSbieAPI* pApi, const QString &LinkPath, const QString &Link
 	return (SUCCEEDED(hr));
 }
 
-void CreateDesktopShortcut(CSbieAPI* pApi, const QString &BoxName, const QString &LinkPath, const QString &IconPath, quint32 IconIndex, const QString &WorkDir)
-{
-	WCHAR path[512];
-	HRESULT hr = SHGetFolderPathW(NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, path);
-	if (hr != 0 || *path == L'\0')
-		return;
-
-	QString LinkName;
-	int pos = LinkPath.lastIndexOf(L'\\');
-	if (pos == -1)
-		return;
-	if (pos == 2 && LinkPath.length() == 3)
-		LinkName = QObject::tr("Drive %1").arg(LinkPath.left(1));
-	else {
-		LinkName = LinkPath.mid(pos + 1);
-		pos = LinkName.indexOf(QRegExp("[" + QRegExp::escape("\":;,*?.") + "]"));
-		if (pos != -1)
-			LinkName = LinkName.left(pos);
-	}
-
-	QString Path = QString::fromWCharArray(path);
-	if (Path.right(1) != "\\")
-		Path.append("\\");
-	Path += "[" + BoxName + "] " + LinkName;
-
-	CreateShortcut(pApi, Path, LinkName, BoxName, LinkPath , IconPath, IconIndex, WorkDir);
-}
-
-bool GetStartMenuShortcut(CSbieAPI* pApi, QString &BoxName, QString &LinkPath, QString &IconPath, quint32& IconIndex, QString &WorkDir)
+bool CSbieUtils::GetStartMenuShortcut(CSbieAPI* pApi, QString &BoxName, QString &LinkPath, QString &IconPath, quint32& IconIndex, QString &WorkDir)
 {
 	WCHAR MapName[128];
 	wsprintf(MapName, SANDBOXIE L"_StartMenu_WorkArea_%08X_%08X", GetCurrentProcessId(), GetTickCount());
@@ -409,12 +382,4 @@ bool GetStartMenuShortcut(CSbieAPI* pApi, QString &BoxName, QString &LinkPath, Q
 	if (BoxName.isEmpty() || LinkPath.isEmpty())
 		return false;
 	return true;
-}
-
-void CSbieUtils::CreateDesktopShortcut(const QString& BoxName, CSbieAPI* pApi)
-{
-	QString LinkPath, IconPath, WorkDir;
-	quint32 IconIndex;
-	if (::GetStartMenuShortcut(pApi, QString(BoxName), LinkPath, IconPath, IconIndex, WorkDir))
-		::CreateDesktopShortcut(pApi, BoxName, LinkPath, IconPath, IconIndex, WorkDir);
 }

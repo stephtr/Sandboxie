@@ -57,12 +57,12 @@ public slots:
 		if (Progress == -1)
 		{
 			if (m_pProgressBar->maximum() != 0)
-				m_pProgressBar->setMinimum(0);
+				m_pProgressBar->setMaximum(0);
 		}
 		else
 		{
 			if (m_pProgressBar->maximum() != 100)
-				m_pProgressBar->setMinimum(100);
+				m_pProgressBar->setMaximum(100);
 
 			m_pProgressBar->setValue(Progress);
 		}
@@ -103,7 +103,6 @@ protected:
 	void closeEvent(QCloseEvent *e)
 	{
 		emit Cancel();
-		this->deleteLater();
 	}
 
 	int					m_TimerId;

@@ -38,8 +38,14 @@ public:
 	QString				GetValue() const { return m_Name; }
 	QString				GetTypeStr() const;
 	QString				GetStautsStr() const;
-	void				IncrCounter() { m_Counter++; }
 	int					GetCount() const { return m_Counter; }
+
+	bool				Equals(const QSharedDataPointer<CResLogEntry>& pOther) const {
+							return pOther->m_ProcessId == this->m_ProcessId
+								//&& pOther->m_Type.Flags == this->m_Type.Flags
+								&& pOther->m_Name == this->m_Name;
+						}
+	void				Merge(const QSharedDataPointer<CResLogEntry>& pOther) { m_Counter++; this->m_Type.Flags |= pOther->m_Type.Flags; }
 
 	quint64				GetUID() const { return m_uid; }
 
@@ -95,7 +101,8 @@ public:
 	virtual void			UpdateDriveLetters();
 	virtual QString			Nt2DosPath(QString NtPath) const;
 
-	virtual SB_STATUS		ReloadBoxes();
+	virtual SB_STATUS		ReloadBoxes(bool bFullUpdate = false);
+	static  SB_STATUS		ValidateName(const QString& BoxName);
 	virtual SB_STATUS		CreateBox(const QString& BoxName);
 
 	virtual SB_STATUS		UpdateProcesses(bool bKeep);
@@ -116,6 +123,7 @@ public:
 
 	virtual QString			GetBoxedPath(const QString& BoxName, const QString& Path);
 	virtual QString			GetBoxedPath(const CSandBoxPtr& pBox, const QString& Path);
+	virtual QString			GetRealPath(const CSandBoxPtr& pBox, const QString& Path);
 
 	enum ESetMode
 	{
@@ -129,7 +137,7 @@ public:
 	virtual SB_STATUS		ReloadConfig(quint32 SessionId = -1);
 	virtual QString			SbieIniGet(const QString& Section, const QString& Setting, quint32 Index = 0, qint32* ErrCode = NULL);
 	virtual SB_STATUS		SbieIniSet(const QString& Section, const QString& Setting, const QString& Value, ESetMode Mode = eIniUpdate);
-	virtual bool			IsBoxEnabled(const QString& BoxName);
+	virtual bool			IsBox(const QString& BoxName, bool& bIsEnabled);
 	virtual CSbieIni*		GetGlobalSettings() const { return m_pGlobalSection; }
 	virtual CSbieIni*		GetUserSettings() const { return m_pUserSection; }
 	virtual bool			IsConfigLocked();
@@ -176,11 +184,11 @@ signals:
 	void					NotAuthorized(bool bLoginRequired, bool &bRetry);
 	void					QueuedRequest(quint32 ClientPid, quint32 ClientTid, quint32 RequestId, const QVariantMap& Data);
 
-private slots:
+protected slots:
 	//virtual void			OnMonitorEntry(quint32 ProcessId, quint32 Type, const QString& Value);
 	virtual void			OnIniChanged(const QString &path);
 	virtual void			OnReloadConfig();
-	virtual void			OnProcessBoxed(quint32 ProcessId, const QString& Path, const QString& Box, quint32 ParentId);
+	virtual CBoxedProcessPtr OnProcessBoxed(quint32 ProcessId, const QString& Path, const QString& Box, quint32 ParentId);
 
 protected:
 	friend class CSandBox;

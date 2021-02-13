@@ -1,6 +1,6 @@
 /*
  * Copyright 2004-2020 Sandboxie Holdings, LLC 
- * Copyright 2020 David Xanatos, xanasoft.com
+ * Copyright 2020-2021 David Xanatos, xanasoft.com
  *
  * This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -88,6 +88,7 @@ enum {
     DLL_IMAGE_SANDBOXIE_WUAU,
     DLL_IMAGE_SANDBOXIE_BITS,
     DLL_IMAGE_SANDBOXIE_SBIESVC,
+    DLL_IMAGE_MSI_INSTALLER,
     DLL_IMAGE_TRUSTED_INSTALLER,
     DLL_IMAGE_WUAUCLT,
     DLL_IMAGE_SHELL_EXPLORER,
@@ -370,6 +371,8 @@ NTSTATUS Dll_GetCurrentSidString(UNICODE_STRING *SidString);
 // Functions (dllhook)
 //---------------------------------------------------------------------------
 
+NTSTATUS Dll_GetSettingsForImageName(
+    const WCHAR* setting, WCHAR* value, ULONG value_size, const WCHAR* deftext);
 
 BOOLEAN Dll_SkipHook(const WCHAR *HookName);
 
@@ -731,6 +734,19 @@ BOOLEAN Acscmonitor_Init(HMODULE);
 BOOLEAN DigitalGuardian_Init(HMODULE);
 
 BOOLEAN ComDlg32_Init(HMODULE);
+
+
+//---------------------------------------------------------------------------
+// Functions (Config)
+//---------------------------------------------------------------------------
+
+
+BOOLEAN Config_InitPatternList(const WCHAR* setting, LIST* list);
+
+NTSTATUS Config_GetSettingsForImageName(
+    const WCHAR* setting, WCHAR* value, ULONG value_size, const WCHAR* deftext);
+
+BOOLEAN Config_GetSettingsForImageName_bool(const WCHAR* setting, BOOLEAN defval);
 
 //---------------------------------------------------------------------------
 

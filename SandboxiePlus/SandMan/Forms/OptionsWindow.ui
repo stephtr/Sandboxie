@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>622</width>
-    <height>412</height>
+    <height>473</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -45,7 +45,7 @@
         <enum>QTabWidget::West</enum>
        </property>
        <property name="currentIndex">
-        <number>6</number>
+        <number>8</number>
        </property>
        <widget class="QWidget" name="tabGeneral">
         <attribute name="title">
@@ -64,20 +64,17 @@
             <layout class="QGridLayout" name="gridLayout_27">
              <item row="1" column="0">
               <layout class="QGridLayout" name="gridLayout_8">
-               <item row="2" column="0" colspan="2">
-                <widget class="QLabel" name="label_21">
+               <item row="1" column="0" colspan="3">
+                <widget class="QLabel" name="label_20">
                  <property name="text">
-                  <string>Sandboxed window border:</string>
+                  <string>Sandbox Indicator in title:</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
-               <item row="2" column="2" colspan="2">
-                <widget class="QComboBox" name="cmbBoxBorder"/>
-               </item>
-               <item row="2" column="5">
+               <item row="2" column="6">
                 <widget class="QSpinBox" name="spinBorderWidth">
                  <property name="minimum">
                   <number>1</number>
@@ -90,7 +87,61 @@
                  </property>
                 </widget>
                </item>
-               <item row="2" column="6">
+               <item row="2" column="3" colspan="2">
+                <widget class="QComboBox" name="cmbBoxBorder"/>
+               </item>
+               <item row="8" column="1" colspan="6">
+                <widget class="QCheckBox" name="chkBlockSpooler">
+                 <property name="text">
+                  <string>Block access to the printer spooler</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1" colspan="6">
+                <widget class="QCheckBox" name="chkBlockNetShare">
+                 <property name="text">
+                  <string>Block network files and folders, unless specifically opened.</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="1" colspan="6">
+                <widget class="QCheckBox" name="chkDropRights">
+                 <property name="text">
+                  <string>Drop rights from Administrators and Power Users groups</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0" colspan="3">
+                <widget class="QLabel" name="label_21">
+                 <property name="text">
+                  <string>Sandboxed window border:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1" colspan="6">
+                <widget class="QCheckBox" name="chkBlockNetParam">
+                 <property name="text">
+                  <string>Prevent change to network and firewall parameters</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="2" colspan="5">
+                <spacer name="horizontalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="2" column="7">
                 <widget class="QLabel" name="label_14">
                  <property name="text">
                   <string>px Width</string>
@@ -100,17 +151,26 @@
                  </property>
                 </widget>
                </item>
-               <item row="2" column="4">
-                <widget class="QToolButton" name="btnBorderColor">
+               <item row="0" column="1">
+                <widget class="QLabel" name="label_30">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
                  <property name="text">
                   <string/>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="2" colspan="2">
-                <widget class="QComboBox" name="cmbBoxIndicator"/>
-               </item>
-               <item row="0" column="0" colspan="2">
+               <item row="0" column="0">
                 <widget class="QLabel" name="label_7">
                  <property name="font">
                   <font>
@@ -123,30 +183,10 @@
                  </property>
                 </widget>
                </item>
-               <item row="1" column="0" colspan="2">
-                <widget class="QLabel" name="label_20">
-                 <property name="text">
-                  <string>Sandbox Indicator in title:</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
+               <item row="1" column="3" colspan="2">
+                <widget class="QComboBox" name="cmbBoxIndicator"/>
                </item>
-               <item row="6" column="2">
-                <spacer name="verticalSpacer_4">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="3" column="0" colspan="2">
+               <item row="3" column="0" colspan="3">
                 <widget class="QLabel" name="label_10">
                  <property name="font">
                   <font>
@@ -162,17 +202,59 @@
                  </property>
                 </widget>
                </item>
-               <item row="4" column="1" colspan="6">
-                <widget class="QCheckBox" name="chkBlockShare">
+               <item row="2" column="5">
+                <widget class="QToolButton" name="btnBorderColor">
                  <property name="text">
-                  <string>Block network files and folders, unless specifically opened.</string>
+                  <string/>
                  </property>
                 </widget>
                </item>
-               <item row="5" column="1" colspan="6">
-                <widget class="QCheckBox" name="chkDropRights">
+               <item row="10" column="2" colspan="5">
+                <widget class="QCheckBox" name="chkPrintToFile">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="text">
-                  <string>Drop rights from Administrators and Power Users groups</string>
+                  <string>Allow the print spooler to print to files outside the sandbox</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="1">
+                <spacer name="verticalSpacer_17">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="7" column="0" colspan="3">
+                <widget class="QLabel" name="label_31">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>Protect the system from sandboxed processes</string>
+                 </property>
+                 <property name="text">
+                  <string>Printing</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="2" colspan="6">
+                <widget class="QCheckBox" name="chkOpenSpooler">
+                 <property name="text">
+                  <string>Remove spooler restriction, printers can be installed outside the sandbox</string>
                  </property>
                 </widget>
                </item>
@@ -185,13 +267,6 @@
              <string>Run Menu</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_33">
-             <item row="1" column="1">
-              <widget class="QPushButton" name="btnAddExe">
-               <property name="text">
-                <string>Browse</string>
-               </property>
-              </widget>
-             </item>
              <item row="0" column="0">
               <widget class="QLabel" name="label_8">
                <property name="text">
@@ -199,27 +274,6 @@
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" rowspan="4">
-              <widget class="QTreeWidget" name="treeRun">
-               <column>
-                <property name="text">
-                 <string>Name</string>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>Command Line</string>
-                </property>
-               </column>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QPushButton" name="btnDelCmd">
-               <property name="text">
-                <string>Remove</string>
                </property>
               </widget>
              </item>
@@ -236,10 +290,55 @@
                </property>
               </spacer>
              </item>
-             <item row="2" column="1">
-              <widget class="QPushButton" name="btnAddCmd">
+             <item row="1" column="0" rowspan="4">
+              <widget class="QTreeWidget" name="treeRun">
+               <column>
+                <property name="text">
+                 <string>Name</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Command Line</string>
+                </property>
+               </column>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QToolButton" name="btnAddCmd">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>23</height>
+                </size>
+               </property>
                <property name="text">
-                <string>Add Command</string>
+                <string>Add program</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QToolButton" name="btnDelCmd">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>23</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Remove</string>
                </property>
               </widget>
              </item>
@@ -302,7 +401,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>File Mrigration</string>
+                  <string>File Migration</string>
                  </property>
                 </widget>
                </item>
@@ -337,6 +436,107 @@
                 </widget>
                </item>
               </layout>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_6">
+            <attribute name="title">
+             <string>Auto Start</string>
+            </attribute>
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_32">
+               <property name="text">
+                <string>Here you can specify programs and/or services that are to be started automatically in the sandbox when it is activated</string>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" rowspan="4">
+              <widget class="QTreeWidget" name="treeAutoStart">
+               <column>
+                <property name="text">
+                 <string>Type</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string notr="true">Program/Service</string>
+                </property>
+               </column>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QToolButton" name="btnDelAuto">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>23</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Remove</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <spacer name="verticalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="1" column="1">
+              <widget class="QToolButton" name="btnAddAutoExe">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>23</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Add program</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QToolButton" name="btnAddAutoSvc">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>23</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Add service</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -491,7 +691,7 @@
            <item row="1" column="0" colspan="2">
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>Programs enteres here, or programs started from entered locations, will be put in this sandbox automatically, unless thay are explicitly started in an otehr sandbox.</string>
+              <string>Programs entered here, or programs started from entered locations, will be put in this sandbox automatically, unless thay are explicitly started in another sandbox.</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -504,7 +704,7 @@
        </widget>
        <widget class="QWidget" name="tabStop">
         <attribute name="title">
-         <string>Stop Behavioure</string>
+         <string>Stop Behaviour</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_17">
          <item row="0" column="0">
@@ -512,7 +712,7 @@
            <item row="5" column="1">
             <widget class="QPushButton" name="btnDelStopProg">
              <property name="text">
-              <string>Remove Progam</string>
+              <string>Remove Program</string>
              </property>
             </widget>
            </item>
@@ -570,9 +770,9 @@
            <item row="0" column="0" colspan="2">
             <widget class="QLabel" name="label_2">
              <property name="text">
-              <string>Lingering programs will be automatically terminated is thay are still running after all other processes have terminated.
+              <string>Lingering programs will be automatically terminated if they are still running after all other processes have been terminated.
 
-If leader processes are defined all others are threated as lingering processes.</string>
+If leader processes are defined, all others are treated as lingering processes.</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -644,14 +844,14 @@ If leader processes are defined all others are threated as lingering processes.<
              <item row="2" column="0">
               <widget class="QRadioButton" name="radStartSelected">
                <property name="text">
-                <string>Allow only sellected programs to start in this sandbox. *</string>
+                <string>Allow only selected programs to start in this sandbox. *</string>
                </property>
               </widget>
              </item>
              <item row="1" column="0">
               <widget class="QRadioButton" name="radStartExcept">
                <property name="text">
-                <string>Prevent sellected programs from starting in this sandbox.</string>
+                <string>Prevent selected programs from starting in this sandbox.</string>
                </property>
               </widget>
              </item>
@@ -665,7 +865,7 @@ If leader processes are defined all others are threated as lingering processes.<
              <item row="3" column="0">
               <widget class="QLabel" name="label_4">
                <property name="text">
-                <string>* Note: Programs installed to this sandbox wont be able to start at all.</string>
+                <string>* Note: Programs installed to this sandbox won't be able to start at all.</string>
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
@@ -714,7 +914,7 @@ If leader processes are defined all others are threated as lingering processes.<
            <item row="3" column="0">
             <widget class="QLabel" name="label_11">
              <property name="text">
-              <string>Note: Programs installed to this sandbox wont be able access the internet at all.</string>
+              <string>Note: Programs installed to this sandbox won't be able to access the internet at all.</string>
              </property>
             </widget>
            </item>
@@ -791,14 +991,38 @@ If leader processes are defined all others are threated as lingering processes.<
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QPushButton" name="btnAddKey">
+            <widget class="QToolButton" name="btnAddKey">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="text">
               <string>Add Reg Key</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QPushButton" name="btnAddFile">
+            <widget class="QToolButton" name="btnAddFile">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="text">
               <string>Add File/Folder</string>
              </property>
@@ -812,21 +1036,57 @@ If leader processes are defined all others are threated as lingering processes.<
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QPushButton" name="btnAddClsId">
+            <widget class="QToolButton" name="btnAddWnd">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="text">
               <string>Add Wnd Class</string>
              </property>
             </widget>
            </item>
            <item row="5" column="1">
-            <widget class="QPushButton" name="btnAddCOM">
+            <widget class="QToolButton" name="btnAddCOM">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="text">
               <string>Add COM Object</string>
              </property>
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QPushButton" name="btnAddIPC">
+            <widget class="QToolButton" name="btnAddIPC">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
              <property name="text">
               <string>Add IPC Path</string>
              </property>
@@ -884,7 +1144,7 @@ If leader processes are defined all others are threated as lingering processes.<
              <property name="text">
               <string>Configure which processes can access what resources. Double click on an entry to edit it.
 'Direct' File and Key access only applies to program binaries located outside the sandbox.
-Note that all Close...=!&lt;program&gt;,... excludes have the same limitations.
+Note that all Close...=!&lt;program&gt;,... exclusions have the same limitations.
 For files access you can use 'Direct All' instead to make it apply to all programs.</string>
              </property>
             </widget>
@@ -1040,14 +1300,7 @@ For files access you can use 'Direct All' instead to make it apply to all progra
               <layout class="QGridLayout" name="gridLayout_26">
                <item row="0" column="1">
                 <layout class="QGridLayout" name="gridLayout_2">
-                 <item row="3" column="1" colspan="2">
-                  <widget class="QCheckBox" name="chkNoWindowRename">
-                   <property name="text">
-                    <string>Don't alter window class names created by sandboxed programs</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="8" column="0" colspan="2">
+                 <item row="10" column="0" colspan="3">
                   <widget class="QLabel" name="label_18">
                    <property name="font">
                     <font>
@@ -1059,31 +1312,31 @@ For files access you can use 'Direct All' instead to make it apply to all progra
                     <string>Protect the system from sandboxed processes</string>
                    </property>
                    <property name="text">
-                    <string>Other restrictions</string>
+                    <string>Lift security restrictions</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_5">
-                   <property name="font">
-                    <font>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Compatybility </string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="1" colspan="2">
+                 <item row="8" column="1" colspan="2">
                   <widget class="QCheckBox" name="chkProtectSCM">
                    <property name="text">
-                    <string>Limit access to the emulated service controll manager to privileged processes</string>
+                    <string>Limit access to the emulated service control manager to privileged processes</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="0" colspan="2">
+                 <item row="15" column="1">
+                  <spacer name="verticalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="7" column="0" colspan="3">
                   <widget class="QLabel" name="label_12">
                    <property name="font">
                     <font>
@@ -1099,34 +1352,44 @@ For files access you can use 'Direct All' instead to make it apply to all progra
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1" colspan="2">
-                  <widget class="QCheckBox" name="chkPreferExternalManifest">
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="label_22">
+                   <property name="font">
+                    <font>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="toolTip">
+                    <string>Protect the sandbox integrity itself</string>
+                   </property>
                    <property name="text">
-                    <string>Force usage of custom dummy Manifest files (legacy behavioure)</string>
+                    <string>Sandbox isolation</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="12" column="1">
-                  <spacer name="verticalSpacer">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
+                 <item row="3" column="1" colspan="2">
+                  <widget class="QCheckBox" name="chkNoWindowRename">
+                   <property name="text">
+                    <string>Don't alter window class names created by sandboxed programs</string>
                    </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                  </spacer>
+                  </widget>
                  </item>
                  <item row="6" column="1" colspan="2">
-                  <widget class="QCheckBox" name="chkProtectRpcSs">
+                  <widget class="QCheckBox" name="chkRestrictServices">
                    <property name="text">
-                    <string>Start the sandboxed RpcSs as a SYSTEM process</string>
+                    <string>Do not start sandboxed services using a system token (recommended)</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="12" column="2">
+                 <item row="11" column="1" colspan="2">
+                  <widget class="QCheckBox" name="chkOpenProtectedStorage">
+                   <property name="text">
+                    <string>Open System Protected Storage</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="15" column="2">
                   <spacer name="horizontalSpacer_6">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
@@ -1139,35 +1402,109 @@ For files access you can use 'Direct All' instead to make it apply to all progra
                    </property>
                   </spacer>
                  </item>
-                 <item row="9" column="1" colspan="2">
-                  <widget class="QCheckBox" name="chkNoDefaultCOM">
+                 <item row="13" column="1" colspan="2">
+                  <widget class="QCheckBox" name="chkOpenSmartCard">
                    <property name="text">
-                    <string>Don't open default COM objects</string>
+                    <string>Allow access to Smart Cards</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="7" column="1" colspan="2">
+                 <item row="5" column="1" colspan="2">
+                  <widget class="QCheckBox" name="chkAddToJob">
+                   <property name="text">
+                    <string>Add sandboxed processes to job objects (recommended)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1" colspan="2">
+                  <widget class="QCheckBox" name="chkPreferExternalManifest">
+                   <property name="text">
+                    <string>Force usage of custom dummy Manifest files (legacy behaviour)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="1" colspan="2">
                   <widget class="QCheckBox" name="chkProtectSystem">
                    <property name="text">
                     <string>Protect sandboxed SYSTEM processes from unprivileged unsandboxed processes</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="10" column="1" colspan="2">
-                  <widget class="QCheckBox" name="chkOpenProtectedStorage">
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_5">
+                   <property name="font">
+                    <font>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
                    <property name="text">
-                    <string>Open System Protected Storage</string>
+                    <string>Compatibility</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="11" column="2">
+                 <item row="12" column="2">
                   <widget class="QCheckBox" name="chkOpenCredentials">
                    <property name="text">
                     <string>Open Windows Credentials Store</string>
                    </property>
                   </widget>
                  </item>
+                 <item row="14" column="1" colspan="2">
+                  <widget class="QCheckBox" name="chkOpenBluetooth">
+                   <property name="text">
+                    <string>Allow access to Bluetooth</string>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tab_2">
+              <attribute name="title">
+               <string>Auto Exec</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_35">
+               <item row="1" column="1">
+                <widget class="QPushButton" name="btnAddAutoExec">
+                 <property name="text">
+                  <string>Add Command</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <spacer name="verticalSpacer_18">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="3" column="1">
+                <widget class="QPushButton" name="btnDelAutoExec">
+                 <property name="text">
+                  <string>Remove</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_33">
+                 <property name="text">
+                  <string>Here you can specify a list of commands that are executed every time the sandbox is initially populated.</string>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" rowspan="3">
+                <widget class="QListWidget" name="lstAutoExec"/>
                </item>
               </layout>
              </widget>
@@ -1218,14 +1555,14 @@ For files access you can use 'Direct All' instead to make it apply to all progra
                <item row="4" column="1">
                 <widget class="QPushButton" name="btnDelProcess">
                  <property name="text">
-                  <string>Remove Process</string>
+                  <string>Remove</string>
                  </property>
                 </widget>
                </item>
                <item row="0" column="0">
                 <widget class="QCheckBox" name="chkHideOtherBoxes">
                  <property name="text">
-                  <string>Dont allow sandboxed processes to see processes running in other boxes</string>
+                  <string>Don't allow sandboxed processes to see processes running in other boxes</string>
                  </property>
                 </widget>
                </item>
@@ -1300,7 +1637,7 @@ Note:  Forced Programs and Force Folders settings for a sandbox do not apply to 
               <layout class="QGridLayout" name="gridLayout_34">
                <item row="0" column="0">
                 <layout class="QGridLayout" name="gridLayout_32">
-                 <item row="8" column="2">
+                 <item row="10" column="2">
                   <spacer name="horizontalSpacer">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
@@ -1312,32 +1649,6 @@ Note:  Forced Programs and Force Folders settings for a sandbox do not apply to 
                     </size>
                    </property>
                   </spacer>
-                 </item>
-                 <item row="8" column="1">
-                  <spacer name="verticalSpacer_2">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="label_19">
-                   <property name="font">
-                    <font>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Access Tracing</string>
-                   </property>
-                  </widget>
                  </item>
                  <item row="7" column="1">
                   <widget class="QCheckBox" name="chkGuiTrace">
@@ -1353,19 +1664,45 @@ Note:  Forced Programs and Force Folders settings for a sandbox do not apply to 
                    </property>
                   </widget>
                  </item>
-                 <item row="5" column="1">
-                  <widget class="QCheckBox" name="chkKeyTrace">
-                   <property name="text">
-                    <string>Key Trace</string>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="4" column="1">
                   <widget class="QCheckBox" name="chkPipeTrace">
                    <property name="text">
                     <string>Pipe Trace</string>
                    </property>
                   </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_19">
+                   <property name="font">
+                    <font>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Access Tracing</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="1" colspan="2">
+                  <widget class="QCheckBox" name="chkDbgTrace">
+                   <property name="text">
+                    <string>Log Debug Output to the Trace Log</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="10" column="1">
+                  <spacer name="verticalSpacer_2">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
                  </item>
                  <item row="3" column="1">
                   <widget class="QCheckBox" name="chkFileTrace">
@@ -1374,15 +1711,22 @@ Note:  Forced Programs and Force Folders settings for a sandbox do not apply to 
                    </property>
                   </widget>
                  </item>
+                 <item row="5" column="1">
+                  <widget class="QCheckBox" name="chkKeyTrace">
+                   <property name="text">
+                    <string>Key Trace</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item row="3" column="2" rowspan="5">
                   <widget class="QLabel" name="label_26">
                    <property name="text">
                     <string>Log all access events as seen by the driver to the resource access log.
 
-This options set the event amsk to &quot;*&quot; - All access events
+This options set the event mask to &quot;*&quot; - All access events
 You can customize the logging using the ini by specifying
 &quot;A&quot; - Allowed accesses
-&quot;D&quot; - Denidec accesses
+&quot;D&quot; - Denied accesses
 &quot;I&quot; - Ignore access requests
 instead of &quot;*&quot;.</string>
                    </property>
@@ -1391,6 +1735,20 @@ instead of &quot;*&quot;.</string>
                    </property>
                    <property name="wordWrap">
                     <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="1">
+                  <widget class="QCheckBox" name="chkComTrace">
+                   <property name="text">
+                    <string>COM Class Trace</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="2">
+                  <widget class="QLabel" name="label_28">
+                   <property name="text">
+                    <string>&lt;- for this one the above does not apply</string>
                    </property>
                   </widget>
                  </item>
@@ -1419,8 +1777,8 @@ instead of &quot;*&quot;.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>530</width>
-                    <height>251</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="dbgLayout">
@@ -1459,7 +1817,7 @@ instead of &quot;*&quot;.</string>
                <item row="1" column="0">
                 <widget class="QLabel" name="label_17">
                  <property name="text">
-                  <string>These options are intended for debugging compatybility issues, please do not use them in productive use. </string>
+                  <string>These options are intended for debugging compatibility issues, please do not use them in production use. </string>
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>
@@ -1524,7 +1882,7 @@ instead of &quot;*&quot;.</string>
            <item row="0" column="0" colspan="4">
             <widget class="QLabel" name="label_13">
              <property name="text">
-              <string>This list contains a large amount of sandbox comatybility enchancing templates</string>
+              <string>This list contains a large amount of sandbox compatibility enhancing templates</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -1609,6 +1967,112 @@ instead of &quot;*&quot;.</string>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabs</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>cmbBoxIndicator</tabstop>
+  <tabstop>cmbBoxBorder</tabstop>
+  <tabstop>btnBorderColor</tabstop>
+  <tabstop>spinBorderWidth</tabstop>
+  <tabstop>chkBlockNetShare</tabstop>
+  <tabstop>chkBlockNetParam</tabstop>
+  <tabstop>chkDropRights</tabstop>
+  <tabstop>chkBlockSpooler</tabstop>
+  <tabstop>chkOpenSpooler</tabstop>
+  <tabstop>chkPrintToFile</tabstop>
+  <tabstop>treeRun</tabstop>
+  <tabstop>btnAddCmd</tabstop>
+  <tabstop>btnDelCmd</tabstop>
+  <tabstop>chkCopyLimit</tabstop>
+  <tabstop>txtCopyLimit</tabstop>
+  <tabstop>chkNoCopyWarn</tabstop>
+  <tabstop>chkAutoEmpty</tabstop>
+  <tabstop>chkProtectBox</tabstop>
+  <tabstop>treeAutoStart</tabstop>
+  <tabstop>btnAddAutoExe</tabstop>
+  <tabstop>btnAddAutoSvc</tabstop>
+  <tabstop>btnDelAuto</tabstop>
+  <tabstop>treeGroups</tabstop>
+  <tabstop>btnAddGroup</tabstop>
+  <tabstop>btnAddProg</tabstop>
+  <tabstop>btnDelProg</tabstop>
+  <tabstop>treeForced</tabstop>
+  <tabstop>btnForceProg</tabstop>
+  <tabstop>btnForceDir</tabstop>
+  <tabstop>chkShowForceTmpl</tabstop>
+  <tabstop>btnDelForce</tabstop>
+  <tabstop>treeStop</tabstop>
+  <tabstop>btnAddLingering</tabstop>
+  <tabstop>btnAddLeader</tabstop>
+  <tabstop>chkShowStopTmpl</tabstop>
+  <tabstop>btnDelStopProg</tabstop>
+  <tabstop>radStartAll</tabstop>
+  <tabstop>radStartExcept</tabstop>
+  <tabstop>radStartSelected</tabstop>
+  <tabstop>treeStart</tabstop>
+  <tabstop>btnAddStartProg</tabstop>
+  <tabstop>btnDelStartProg</tabstop>
+  <tabstop>chkStartBlockMsg</tabstop>
+  <tabstop>chkBlockINet</tabstop>
+  <tabstop>chkINetBlockPrompt</tabstop>
+  <tabstop>treeINet</tabstop>
+  <tabstop>btnAddINetProg</tabstop>
+  <tabstop>btnDelINetProg</tabstop>
+  <tabstop>chkINetBlockMsg</tabstop>
+  <tabstop>treeAccess</tabstop>
+  <tabstop>btnAddFile</tabstop>
+  <tabstop>btnAddKey</tabstop>
+  <tabstop>btnAddIPC</tabstop>
+  <tabstop>btnAddWnd</tabstop>
+  <tabstop>btnAddCOM</tabstop>
+  <tabstop>btnMoveUp</tabstop>
+  <tabstop>btnMoveDown</tabstop>
+  <tabstop>chkShowAccessTmpl</tabstop>
+  <tabstop>btnDelAccess</tabstop>
+  <tabstop>chkAutoRecovery</tabstop>
+  <tabstop>treeRecovery</tabstop>
+  <tabstop>btnAddRecovery</tabstop>
+  <tabstop>btnAddRecIgnore</tabstop>
+  <tabstop>btnAddRecIgnoreExt</tabstop>
+  <tabstop>chkShowRecoveryTmpl</tabstop>
+  <tabstop>btnDelRecovery</tabstop>
+  <tabstop>tabsAdvanced</tabstop>
+  <tabstop>chkPreferExternalManifest</tabstop>
+  <tabstop>chkNoWindowRename</tabstop>
+  <tabstop>chkAddToJob</tabstop>
+  <tabstop>chkRestrictServices</tabstop>
+  <tabstop>chkProtectSCM</tabstop>
+  <tabstop>chkProtectSystem</tabstop>
+  <tabstop>chkOpenProtectedStorage</tabstop>
+  <tabstop>chkOpenCredentials</tabstop>
+  <tabstop>chkOpenSmartCard</tabstop>
+  <tabstop>lstAutoExec</tabstop>
+  <tabstop>btnAddAutoExec</tabstop>
+  <tabstop>btnDelAutoExec</tabstop>
+  <tabstop>chkHideOtherBoxes</tabstop>
+  <tabstop>lstProcesses</tabstop>
+  <tabstop>btnAddProcess</tabstop>
+  <tabstop>btnDelProcess</tabstop>
+  <tabstop>lstUsers</tabstop>
+  <tabstop>btnAddUser</tabstop>
+  <tabstop>btnDelUser</tabstop>
+  <tabstop>chkMonitorAdminOnly</tabstop>
+  <tabstop>chkFileTrace</tabstop>
+  <tabstop>chkPipeTrace</tabstop>
+  <tabstop>chkKeyTrace</tabstop>
+  <tabstop>chkIpcTrace</tabstop>
+  <tabstop>chkGuiTrace</tabstop>
+  <tabstop>chkComTrace</tabstop>
+  <tabstop>chkDbgTrace</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>treeTemplates</tabstop>
+  <tabstop>cmbCategories</tabstop>
+  <tabstop>txtTemplates</tabstop>
+  <tabstop>btnEditIni</tabstop>
+  <tabstop>txtIniSection</tabstop>
+  <tabstop>btnSaveIni</tabstop>
+  <tabstop>btnCancelEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

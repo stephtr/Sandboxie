@@ -1,0 +1,71 @@
+# For most projects, this workflow file will not need changing; you simply need
+# to commit it to your repository.
+#
+# You may wish to alter this file to override the set of languages analyzed,
+# or to provide custom queries or build logic.
+#
+# ******** NOTE ********
+# We have attempted to detect the languages in your repository. Please check
+# the `language` matrix defined below to confirm you have the correct set of
+# supported CodeQL languages.
+#
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ master ]
+  schedule:
+    - cron: '42 6 * * 1'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: windows-2019
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp' ]
+        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python' ]
+        # Learn more:
+        # https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#changing-the-languages-that-are-analyzed
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: ${{ matrix.language }}
+        # If you wish to specify custom queries, you can do so here or in a config file.
+        # By default, queries listed here will override any specified in a config file.
+        # Prefix the list here with "+" to use these queries and those in the config file.
+        # queries: ./path/to/local/query, your-org/your-repo/queries@main
+
+    - name: Setup msbuild
+      uses: microsoft/setup-msbuild@v1 
+
+    - name: Build Sandboxie 64 bit
+      run: msbuild /t:build Sandboxie\Sandbox.sln /p:Configuration="SbieRelease" /p:Platform=x64 -maxcpucount:8
+
+    - name: Install Qt 64 bit
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '5.15.1'
+        dir: ..
+        arch: 'win64_msvc2019_64'
+
+    - name: Installing Jom
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: SandboxiePlus\install_jom.cmd
+
+    - name: Build Sandboxie-Plus 64 bit
+      run: SandboxiePlus\qmake_plus.cmd x64
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
